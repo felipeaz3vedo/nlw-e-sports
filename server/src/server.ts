@@ -56,3 +56,5 @@ app.get('/ads/:id/discord', (request, response) => {
 });
 
 app.listen(3333);
+
+//aula 03 - 39:33
