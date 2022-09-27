@@ -1,10 +1,12 @@
+import { useEffect, useState } from 'react';
 import { GameBanner } from './components/GameBanner';
+import { CreateAdBanner } from './components/CreateAdBanner';
+import * as Dialog from '@radix-ui/react-dialog';
 
 import logoImg from './assets/logo.svg';
 
 import './styles/main.css';
-import { CreateAdBanner } from './components/CreateAdBanner';
-import { useEffect, useState } from 'react';
+import { CreateAdModal } from './components/CreateAdModal';
 
 interface IGame {
   id: string;
@@ -55,7 +57,11 @@ export const App = () => {
         })}
       </div>
 
-      <CreateAdBanner />
+      <Dialog.Root>
+        <CreateAdBanner />
+
+        <CreateAdModal />
+      </Dialog.Root>
     </div>
   );
 };
