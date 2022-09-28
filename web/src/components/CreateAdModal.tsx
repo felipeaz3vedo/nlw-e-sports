@@ -3,8 +3,26 @@ import { Input } from './Form/Input';
 
 import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Dialog from '@radix-ui/react-dialog';
+import { useState, useEffect } from 'react';
+
+interface IGame {
+  id: string;
+  title: string;
+}
 
 export const CreateAdModal = () => {
+  const [games, setGames] = useState<IGame[]>([]);
+
+  const fetchData = async () => {
+    fetch('http://localhost:3333/games')
+      .then(response => response.json())
+      .then(data => setGames(data));
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   return (
     <Dialog.Portal>
       <Dialog.Overlay className="bg-black/60 inset-0 fixed" />
@@ -22,7 +40,21 @@ export const CreateAdModal = () => {
             <label className="font-semibold" htmlFor="game">
               Qual o game?
             </label>
-            <Input id="game" placeholder="Selecione o game que deseja jogar" />
+            <select
+              className="bg-zinc-900 py-3 px-4 rounded text-sm text-zinc-500"
+              id="game"
+            >
+              <option className="" disabled selected value="">
+                selecione o game que deseja jogar
+              </option>
+              {games.map(game => {
+                return (
+                  <option key={game.id} value={game.id}>
+                    {game.title}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -87,7 +119,7 @@ export const CreateAdModal = () => {
           <div className="flex items-center gap-2 mt-2 text-sm">
             <Checkbox.Root className="w-6 h-6 p-1 rounded bg-zinc-900">
               <Checkbox.Indicator>
-                <Check className="w-4 h-4 text-emerald-400" />
+                <Check weight="bold" size={16} color="#34d399" />
               </Checkbox.Indicator>
             </Checkbox.Root>
             Costumo me conectar ao chat de voz

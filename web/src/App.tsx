@@ -29,9 +29,7 @@ export const App = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  {
-    console.log(games);
-  }
+
   return (
     <div className="max-w-[1344px] mx-auto flex flex-col items-center my-20">
       <img src={logoImg} alt="Logomarca do NLW eSports" />
