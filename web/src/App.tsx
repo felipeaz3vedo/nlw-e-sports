@@ -7,6 +7,7 @@ import logoImg from './assets/logo.svg';
 
 import './styles/main.css';
 import { CreateAdModal } from './components/CreateAdModal';
+import axios from 'axios';
 
 interface IGame {
   id: string;
@@ -21,9 +22,9 @@ export const App = () => {
   const [games, setGames] = useState<IGame[]>([]);
 
   const fetchData = async () => {
-    fetch('http://localhost:3333/games')
-      .then(response => response.json())
-      .then(data => setGames(data));
+    await axios('http://localhost:3333/games').then(response =>
+      setGames(response.data)
+    );
   };
 
   useEffect(() => {

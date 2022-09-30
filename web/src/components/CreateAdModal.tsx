@@ -1,9 +1,12 @@
+import { useState, useEffect, FormEvent } from 'react';
+
 import { Check, GameController } from 'phosphor-react';
 import { Input } from './Form/Input';
 
 import * as Checkbox from '@radix-ui/react-checkbox';
 import * as Dialog from '@radix-ui/react-dialog';
-import { useState, useEffect } from 'react';
+import * as ToggleGroup from '@radix-ui/react-toggle-group';
+import axios from 'axios';
 
 interface IGame {
   id: string;
@@ -12,16 +15,48 @@ interface IGame {
 
 export const CreateAdModal = () => {
   const [games, setGames] = useState<IGame[]>([]);
+  const [weekDays, setWeekDays] = useState<string[]>([]);
+  const [useVoiceChannel, setUseVoiceChannel] = useState(false);
+
+  console.log(weekDays);
 
   const fetchData = async () => {
-    fetch('http://localhost:3333/games')
-      .then(response => response.json())
-      .then(data => setGames(data));
+    await axios('http://localhost:3333/games').then(response =>
+      setGames(response.data)
+    );
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target as HTMLFormElement);
+    const data = Object.fromEntries(formData);
+
+    // inserir validação mais elaborada
+
+    if (!data.name) return alert('Erro ao criar o anúncio');
+
+    try {
+      axios.post(`http://localhost:3333/games/${data.game}/ads`, {
+        name: data.name,
+        yearsPlaying: Number(data.yearsPlaying),
+        discord: data.discord,
+        weekDays: weekDays.map(Number),
+        hourStart: data.hourStart,
+        hourEnd: data.hourEnd,
+        useVoiceChannel: useVoiceChannel
+      });
+
+      alert('Anúncio criado');
+    } catch (err) {
+      console.log(err);
+      alert('Erro ao criar o anúncio');
+    }
+  };
 
   return (
     <Dialog.Portal>
@@ -35,16 +70,18 @@ export const CreateAdModal = () => {
           Publique um anúncio
         </Dialog.Title>
 
-        <form className="mt-8 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label className="font-semibold" htmlFor="game">
               Qual o game?
             </label>
             <select
-              className="bg-zinc-900 py-3 px-4 rounded text-sm text-zinc-500"
+              className="bg-zinc-900 py-3 px-4 rounded text-sm"
               id="game"
+              name="game"
+              defaultValue=""
             >
-              <option className="" disabled selected value="">
+              <option className="" disabled value="">
                 selecione o game que deseja jogar
               </option>
               {games.map(game => {
@@ -59,13 +96,18 @@ export const CreateAdModal = () => {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="name">Seu nome (ou nickname)</label>
-            <Input id="name" placeholder="como te chamam dentro do game?" />
+            <Input
+              name="name"
+              id="name"
+              placeholder="como te chamam dentro do game?"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-6">
             <div className="flex flex-col gap-2">
               <label htmlFor="yearsPlaying">Joga há quantos anos?</label>
               <Input
+                name="yearsPlaying"
                 id="yearsPlaying"
                 type="number"
                 placeholder="tudo bem ser 0"
@@ -74,7 +116,12 @@ export const CreateAdModal = () => {
 
             <div className="flex flex-col gap-2">
               <label htmlFor="discord">Qual o seu Discord?</label>
-              <Input id="discord" placeholder="Usuário#0000" />
+              <Input
+                name="discord"
+                type="text"
+                id="discord"
+                placeholder="Usuário#0000"
+              />
             </div>
           </div>
 
@@ -82,48 +129,119 @@ export const CreateAdModal = () => {
             <div className="flex flex-col gap-2">
               <label htmlFor="weekDays">Quando costuma jogar?</label>
 
-              <div className="grid grid-cols-4 gap-2 ">
-                <button className="w-8 h8 rounded bg-zinc-900" title="Domingo">
+              <ToggleGroup.Root
+                className="grid grid-cols-4 gap-2 "
+                type="multiple"
+                value={weekDays}
+                onValueChange={setWeekDays}
+              >
+                <ToggleGroup.Item
+                  value="0"
+                  title="Domingo"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('0') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                >
                   D
-                </button>
-                <button className="w-8 h8 rounded bg-zinc-900" title="Segunda">
+                </ToggleGroup.Item>
+
+                <ToggleGroup.Item
+                  value="1"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('1') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                  title="Segunda"
+                >
                   S
-                </button>
-                <button className="w-8 h8 rounded bg-zinc-900" title="Terça">
+                </ToggleGroup.Item>
+
+                <ToggleGroup.Item
+                  value="2"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('2') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                  title="Terça"
+                >
                   T
-                </button>
-                <button className="w-8 h8 rounded bg-zinc-900" title="Quarta">
+                </ToggleGroup.Item>
+
+                <ToggleGroup.Item
+                  value="3"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('3') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                  title="Quarta"
+                >
                   Q
-                </button>
-                <button className="w-8 h8 rounded bg-zinc-900" title="Quinta">
+                </ToggleGroup.Item>
+
+                <ToggleGroup.Item
+                  value="4"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('4') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                  title="Quinta"
+                >
                   Q
-                </button>
-                <button className="w-8 h8 rounded bg-zinc-900" title="Sexta">
+                </ToggleGroup.Item>
+
+                <ToggleGroup.Item
+                  value="5"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('5') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                  title="Sexta"
+                >
                   S
-                </button>
-                <button className="w-8 h8 rounded bg-zinc-900" title="Sabado">
+                </ToggleGroup.Item>
+
+                <ToggleGroup.Item
+                  value="6"
+                  className={`w-8 h8 rounded ${
+                    weekDays.includes('6') ? 'bg-violet-500' : 'bg-zinc-900'
+                  }`}
+                  title="Sabado"
+                >
                   S
-                </button>
-              </div>
+                </ToggleGroup.Item>
+              </ToggleGroup.Root>
             </div>
 
             <div className="flex flex-col gap-2 flex-1">
               <label htmlFor="hourStart">Qual horário do dia</label>
               <div className="grid grid-cols-2 gap-2">
-                <Input id="hourStart" type="time" placeholder="De" />
-                <Input id="hourEnd" type="time" placeholder="Até" />
+                <Input
+                  name="hourStart"
+                  id="hourStart"
+                  type="time"
+                  placeholder="De"
+                />
+                <Input
+                  name="hourEnd"
+                  id="hourEnd"
+                  type="time"
+                  placeholder="Até"
+                />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mt-2 text-sm">
-            <Checkbox.Root className="w-6 h-6 p-1 rounded bg-zinc-900">
+          <label className="flex items-center gap-2 mt-2 text-sm">
+            <Checkbox.Root
+              checked={useVoiceChannel}
+              onCheckedChange={checked => {
+                checked === true
+                  ? setUseVoiceChannel(true)
+                  : setUseVoiceChannel(false);
+              }}
+              className="w-6 h-6 p-1 rounded bg-zinc-900"
+            >
               <Checkbox.Indicator>
                 <Check weight="bold" size={16} color="#34d399" />
               </Checkbox.Indicator>
             </Checkbox.Root>
             Costumo me conectar ao chat de voz
-          </div>
+          </label>
 
           <footer className="flex justify-end gap-4 mt-4">
             <Dialog.Close
